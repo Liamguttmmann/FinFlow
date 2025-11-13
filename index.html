@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FinFlow Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="sidebar-avatar" aria-hidden="true">FF</div>
+        <nav class="sidebar-nav" aria-label="Navegação principal">
+          <button class="sidebar-nav-btn is-active" aria-label="Dashboard">
+            <span class="sidebar-icon">📊</span>
+            <span class="sidebar-label">Dashboard</span>
+          </button>
+          <button class="sidebar-nav-btn" aria-label="Gastos">
+            <span class="sidebar-icon">💸</span>
+            <span class="sidebar-label">Gastos</span>
+          </button>
+          <button class="sidebar-nav-btn" aria-label="Investimentos">
+            <span class="sidebar-icon">📈</span>
+            <span class="sidebar-label">Investimentos</span>
+          </button>
+        </nav>
+      </div>
+
+      <div class="sidebar-spacer" aria-hidden="true"></div>
+
+      <button id="themeToggle" class="sidebar-toggle-theme" aria-label="Alternar tema">
+        <span id="themeToggleIcon" aria-hidden="true">☀️</span>
+      </button>
+
+      <button class="sidebar-profile" aria-label="Perfil">
+        <span class="sidebar-profile-icon" aria-hidden="true">👤</span>
+      </button>
+    </aside>
+
+    <main class="dashboard">
+      <header class="dashboard-header">
+        <div class="dashboard-header-texts">
+          <h1>Dashboard</h1>
+          <p class="dashboard-subtitle">Acompanhe seus gastos, investimentos e metas.</p>
+        </div>
+        <div class="dashboard-actions">
+          <button class="dashboard-button">Editar Widgets</button>
+          <div class="dashboard-dropdown">
+            <button class="dashboard-dropdown-toggle" aria-haspopup="true" aria-expanded="false">
+              Período ▾
+            </button>
+            <div class="dashboard-dropdown-menu" role="menu">
+              <button role="menuitem">Últimos 7 dias</button>
+              <button role="menuitem">Últimos 30 dias</button>
+              <button role="menuitem">Este ano</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="dashboard-grid">
+        <article class="dashboard-card">
+          <h2>Total em Caixa</h2>
+          <p class="card-value">R$ 12.450,00</p>
+          <p class="card-trend positive">+8,2% este mês</p>
+        </article>
+        <article class="dashboard-card">
+          <h2>Gastos Mensais</h2>
+          <p class="card-value">R$ 5.230,00</p>
+          <p class="card-trend negative">-2,4% este mês</p>
+        </article>
+        <article class="dashboard-card">
+          <h2>Investimentos</h2>
+          <p class="card-value">R$ 42.880,00</p>
+          <p class="card-trend positive">+5,1% este mês</p>
+        </article>
+        <article class="dashboard-card">
+          <h2>Metas</h2>
+          <p class="card-value">3 metas concluídas</p>
+          <p class="card-trend">Em andamento</p>
+        </article>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
