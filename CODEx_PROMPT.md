@@ -1,21 +1,39 @@
-# Prompt para o Codex
+# Prompt para o Codex (versão atual do FinFlow)
 
-Contexto existente:
-- Projeto React já configurado para o dashboard FinFlow; não criar novo projeto, nem sobrescrever arquivos globais como `package.json`, `vite.config.js` ou `index.html`.
-- Estrutura atual segue widgets arrastáveis/redimensionáveis; componentes principais localizados em `src/dashboard` e `src/widgets`.
-- Dependências já presentes incluem `react`, `react-dom`, `react-grid-layout`, `classnames` e `dayjs`. Não adicionar novas libs nem remover as existentes.
+## Stack existente
+- Projeto **React 18 + Vite 5** já configurado e funcionando (`npm install`/`npm run dev`).
+- Componentes de dashboard em `src/components` e widgets individuais em `src/widgets`.
+- Layout arrastável usa `react-grid-layout` e já está integrado em `src/components/Dashboard.jsx`.
+- Utilitários: `classnames`, `dayjs` (com plugins ISO week) e helpers de formato em `src/utils/format.js`.
+- Estilos globais em `src/styles/global.css` controlam cards (`.widget-card`), cabeçalhos (`.widget-header`) e linhas de categoria.
 
-Objetivo: Ajustar apenas o widget "Metas de gastos" preservando o restante do projeto.
+> **Não gerar** novos projetos, arquivos base (como `index.html`, `main.jsx`, `App.jsx`, `vite.config.js`, `package*.json`) ou alterar widgets que não sejam o de metas.
 
-Tarefas específicas:
-1. Atualizar `src/widgets/GoalsWidget.jsx` para implementar o layout detalhado de metas por categoria.
-   - Cabeçalho com título, subtítulo, seletor Mensal/Semanal e navegação por período (botões com ids `goalsPrevPeriod` e `goalsNextPeriod`).
-   - Lógica para alternar entre modo compacto (mostrar top 3 categorias) e modo expandido (todas as categorias + resumo com economia mensal/anual).
-   - Barras de progresso coloridas por categoria, usando dados reais de gastos/metas já fornecidos pelos utilitários existentes.
-   - Estado vazio amigável caso não haja metas para o período e botão de "Configurar metas" chamando `abrirConfiguracaoMeta(categoria)`.
-2. Garantir que o widget use as variáveis de tema (`var(--card)`, `var(--text-main)`, `var(--text-muted)`) em vez de cores fixas para fundo e textos.
-3. Reutilizar helpers/utilitários já existentes (ex.: formatação monetária, filtros de período). Se precisar de ajustes nesses helpers, editar apenas os arquivos relevantes em `src/utils/` sem alterar API pública.
-4. Manter integração com o sistema de widgets: respeitar props de tamanho/redimensionamento e não alterar outros widgets ou a configuração geral.
-5. Não modificar arquivos fora de `src/widgets/GoalsWidget.jsx` e, se indispensável, documentar no comentário do patch o motivo da alteração em cada arquivo adicional.
+## Objetivo pontual
+Ajustar **apenas** o widget `Metas de gastos` que está implementado em `src/widgets/GoalsWidget.jsx`, mantendo o restante do dashboard intacto e compatível com o layout mostrado no screenshot oficial (cards claros, sombras suaves, colunas 4x8).
 
-Saída esperada: patch mínimo com as alterações descritas acima, sem gerar arquivos novos nem remover arquivos existentes.
+## Requisitos do ajuste
+1. **Cabeçalho do widget**
+   - Título "Metas de gastos" + subtítulo "Acompanhe suas metas por categoria" usando `var(--text-muted)`.
+   - Seletor de período (Mensal/Semanal) reutilizando os botões já existentes (`.period-selector button`) e ids `goalsPrevPeriod` / `goalsNextPeriod` nas setas de navegação.
+2. **Comportamento compacto vs. expandido**
+   - Recebe `isExpanded` via props (já passado pelo `Dashboard`).
+   - Compacto: mostrar somente **top 3** categorias pelo gasto do período + mensagem "Aumente o widget..." caso haja mais itens.
+   - Expandido: listar todas as categorias com metas/gastos, exibir banner resumo com meta total, gasto total e economia mensal/anual.
+3. **Dados**
+   - Usar `expenses` e `spendingGoals` de `src/data/spending.js`.
+   - Calcular montantes e percentuais por categoria e período (mensal ou semanal), conforme o já iniciado no arquivo.
+   - Estado vazio: se não houver metas para o período, mostrar card com emoji 🎯, texto de incentivo e botão "Configurar metas" chamando `abrirConfiguracaoMeta`.
+4. **Visual**
+   - Manter o estilo das classes existentes (`.category-row`, `.progress-bar`, `.summary-banner`).
+   - Fundos/textos sempre via variáveis de tema: `var(--card)`, `var(--text-main)`, `var(--text-muted)`.
+   - Barras coloridas podem usar o mapa `CATEGORY_COLORS` definido no próprio arquivo.
+5. **Escopo das alterações**
+   - Preferir manter mudanças restritas a `src/widgets/GoalsWidget.jsx`.
+   - Só toque em outros arquivos se for impossível evitar; nesse caso explique claramente no patch o porquê.
+
+## Checklist final antes de enviar o patch
+- [ ] Nenhum arquivo novo criado nem arquivos principais sobrescritos.
+- [ ] GoalsWidget continua integrado ao `widgetsConfig` existente.
+- [ ] Código compila com `npm run build`.
+- [ ] Layout permanece igual ao design moderno do FinFlow (cards atuais, não versões antigas).
