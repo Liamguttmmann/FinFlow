@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinFlow</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <span class="logo">FinFlow</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item">
+          <span class="nav-icon">🏠</span>
+          <span class="nav-label">Dashboard</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="nav-icon">💸</span>
+          <span class="nav-label">Gastos</span>
+        </a>
+        <a href="#" class="nav-item active">
+          <span class="nav-icon">📈</span>
+          <span class="nav-label">Investimentos</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="nav-icon">👤</span>
+          <span class="nav-label">Perfil</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <button id="toggleTheme" class="theme-toggle" type="button">
+          <span>Alternar tema</span>
+        </button>
+      </div>
+    </aside>
+    <main class="content">
+      <section class="investimentos">
+        <div class="investimentos-header">
+          <h1>Investimentos</h1>
+          <p>Organize sua carteira e acompanhe suas metas.</p>
+        </div>
+        <div class="investimentos-tabs">
+          <button class="tab-invest active" data-tab="carteira" type="button">Carteira</button>
+          <button class="tab-invest" data-tab="metas" type="button">Metas</button>
+        </div>
+        <div id="investimentos-carteira" class="investimentos-view active">
+          <div class="carteira-header">
+            <div class="resumo-carteira">
+              <div class="card resumo-card" id="cardTotalInvestido">
+                <span class="card-label">Total investido</span>
+                <strong class="card-value" data-field="total-investido">R$ 0,00</strong>
+              </div>
+              <div class="card resumo-card" id="cardValorAtual">
+                <span class="card-label">Valor atual</span>
+                <strong class="card-value" data-field="valor-atual">R$ 0,00</strong>
+              </div>
+              <div class="card resumo-card" id="cardRentabilidade">
+                <span class="card-label">Rentabilidade total</span>
+                <strong class="card-value" data-field="rentabilidade-total">0,00%</strong>
+              </div>
+            </div>
+            <button id="btnAddInvestimento" class="btn btn-primary" type="button">+ Adicionar investimento</button>
+          </div>
+          <div class="card grafico-card">
+            <div class="grafico-header">
+              <h2>Projeção da carteira</h2>
+              <p>Estimativa baseada nos aportes e rentabilidade esperada.</p>
+            </div>
+            <canvas id="carteiraChart" height="220"></canvas>
+          </div>
+          <div class="card tabela-investimentos">
+            <div class="tabela-header">
+              <h2>Carteira detalhada</h2>
+            </div>
+            <div class="tabela-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Plataforma</th>
+                    <th>Ativo</th>
+                    <th>Tipo</th>
+                    <th>Categoria</th>
+                    <th>Valor investido</th>
+                    <th>Valor atual</th>
+                    <th>Rentabilidade</th>
+                    <th>% da carteira</th>
+                  </tr>
+                </thead>
+                <tbody id="investimentosTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div id="investimentos-metas" class="investimentos-view">
+          <div class="metas-header">
+            <div>
+              <h2>Metas financeiras</h2>
+              <p>Defina objetivos e acompanhe o progresso.</p>
+            </div>
+            <button id="btnAddMeta" class="btn btn-primary" type="button">+ Nova meta</button>
+          </div>
+          <div class="metas-lista" id="listaMetas"></div>
+          <div class="card meta-grafico" id="metaGraficoCard" hidden>
+            <div class="grafico-header">
+              <h3>Projeção da meta</h3>
+              <p id="metaGraficoDescricao">Previsão de evolução com base no aporte mensal.</p>
+            </div>
+            <canvas id="metaChart" height="220"></canvas>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal" id="modalInvestimento" aria-hidden="true">
+    <div class="modal-card">
+      <form id="formInvestimento">
+        <h2 id="modalInvestimentoTitulo">Adicionar investimento</h2>
+        <div class="form-grid">
+          <label>
+            Plataforma
+            <input type="text" name="plataforma" required />
+          </label>
+          <label>
+            Tipo
+            <select name="tipo" required>
+              <option value="Renda Fixa">Renda Fixa</option>
+              <option value="Ações">Ações</option>
+              <option value="Fundos">Fundos</option>
+              <option value="FII">FII</option>
+              <option value="Cripto">Cripto</option>
+              <option value="Outros">Outros</option>
+            </select>
+          </label>
+          <label>
+            Ativo
+            <input type="text" name="ativo" required />
+          </label>
+          <label>
+            Categoria
+            <input type="text" name="categoria" placeholder="Reserva, Aposentadoria..." />
+          </label>
+          <label>
+            Valor investido
+            <input type="number" name="valorInvestido" step="0.01" min="0" required />
+          </label>
+          <label>
+            Valor atual
+            <input type="number" name="valorAtual" step="0.01" min="0" required />
+          </label>
+          <label>
+            Rentabilidade (%)
+            <input type="number" name="rentabilidadePercentual" step="0.01" />
+          </label>
+          <label>
+            Última atualização
+            <input type="date" name="dataUltimaAtualizacao" required />
+          </label>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close-modal>Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar investimento</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="modalMeta" aria-hidden="true">
+    <div class="modal-card">
+      <form id="formMeta">
+        <h2 id="modalMetaTitulo">Nova meta</h2>
+        <div class="form-grid">
+          <label>
+            Tipo de meta
+            <select name="categoria" id="metaCategoria" required>
+              <option value="Carro">Carro</option>
+              <option value="Casa">Casa / Financiamento de imóvel</option>
+              <option value="Eletrônico">iPhone / Eletrônico</option>
+              <option value="Viagem">Viagem</option>
+              <option value="Reserva de Emergência">Reserva de Emergência</option>
+              <option value="Outros">Outros</option>
+            </select>
+          </label>
+          <label>
+            Nome da meta
+            <input type="text" name="nome" id="metaNome" required />
+          </label>
+          <label>
+            Valor alvo
+            <input type="number" name="valorAlvo" step="0.01" min="0" required />
+          </label>
+          <label>
+            Valor atual
+            <input type="number" name="valorAtual" step="0.01" min="0" value="0" required />
+          </label>
+          <label>
+            Aporte mensal desejado
+            <input type="number" name="aporteMensal" step="0.01" min="0" required />
+          </label>
+          <label>
+            Prazo desejado (meses)
+            <input type="number" name="prazoMesesDesejado" step="1" min="0" />
+          </label>
+          <label>
+            Taxa esperada (% a.m.)
+            <input type="number" name="taxaMensalEsperada" step="0.01" min="0" />
+          </label>
+          <label>
+            Data de criação
+            <input type="date" name="dataCriacao" required />
+          </label>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close-modal>Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar meta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
