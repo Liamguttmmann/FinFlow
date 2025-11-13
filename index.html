@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FinFlow - Gastos</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="sidebar__logo">FinFlow</div>
+        <nav class="sidebar__nav">
+          <a href="#" class="sidebar__link sidebar__link--active">Gastos</a>
+          <a href="#" class="sidebar__link">Investimentos</a>
+          <a href="#" class="sidebar__link">Metas</a>
+          <a href="#" class="sidebar__link">Planejamento</a>
+        </nav>
+      </aside>
+      <main class="content">
+        <header class="content__header">
+          <div class="content__titles">
+            <h1 class="content__title">Gastos</h1>
+            <p class="content__subtitle">Como podemos te ajudar hoje?</p>
+          </div>
+          <div class="content__actions">
+            <button class="btn btn-secondary" id="btnEditarTriagem">
+              Editar triagem
+            </button>
+            <div class="content__primary-actions">
+              <button class="btn btn-primary" id="btnAdicionarGasto">
+                + Adicionar gasto
+              </button>
+              <button class="btn btn-primary" id="btnImportarFatura">
+                Importar fatura
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <section class="filters">
+          <button class="filter-btn" data-range="7d">7 dias</button>
+          <button class="filter-btn filter-btn--active" data-range="30d">
+            30 dias
+          </button>
+          <button class="filter-btn" data-range="6m">6 meses</button>
+        </section>
+
+        <section class="card card--chart">
+          <div class="card__header">
+            <h2 class="card__title">Visão de rendas e gastos</h2>
+            <p class="card__subtitle">
+              Compare suas rendas com a distribuição das categorias de gastos.
+            </p>
+          </div>
+          <div class="card__body">
+            <canvas id="gastosChart"></canvas>
+            <div class="chart-legend" id="chartLegend"></div>
+          </div>
+        </section>
+
+        <section class="card card--table">
+          <div class="card__header">
+            <h2 class="card__title">Gastos por período</h2>
+            <p class="card__subtitle">
+              Visualize e edite os gastos filtrados pelo período selecionado.
+            </p>
+          </div>
+          <div class="card__body">
+            <div class="table-wrapper">
+              <table id="tabelaGastos">
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Descrição</th>
+                    <th>Tipo</th>
+                    <th>Categoria</th>
+                    <th>Etiqueta</th>
+                    <th class="col-valor">Valor (R$)</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+              <div class="empty-state" id="estadoVazio" hidden>
+                <h3>Nenhum gasto neste período</h3>
+                <p>Altere o filtro de período ou cadastre um novo gasto.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="modal-overlay" id="modalAdicionarGasto" hidden>
+      <div class="modal">
+        <header class="modal__header">
+          <h2>Adicionar gasto</h2>
+          <button class="modal__close" data-close>&times;</button>
+        </header>
+        <form id="formAdicionarGasto" class="modal__body">
+          <div class="form-group">
+            <label for="gastoData">Data</label>
+            <input type="date" id="gastoData" required />
+          </div>
+          <div class="form-group">
+            <label for="gastoDescricao">Descrição</label>
+            <input type="text" id="gastoDescricao" placeholder="Ex.: Supermercado" required />
+          </div>
+          <div class="form-group">
+            <label for="gastoTipo">Tipo</label>
+            <select id="gastoTipo" required>
+              <option value="Fixo">Fixo</option>
+              <option value="Variável">Variável</option>
+              <option value="Assinatura">Assinatura</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="gastoCategoria">Categoria</label>
+            <input
+              type="text"
+              id="gastoCategoria"
+              placeholder="Ex.: Despesas obrigatórias"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="gastoEtiqueta">Etiqueta</label>
+            <input type="text" id="gastoEtiqueta" placeholder="Ex.: Cartão Nubank" />
+          </div>
+          <div class="form-group">
+            <label for="gastoValor">Valor (R$)</label>
+            <input type="number" id="gastoValor" step="0.01" min="0" required />
+          </div>
+          <footer class="modal__footer">
+            <button type="button" class="btn btn-secondary" data-close>
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+          </footer>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="modalImportarFatura" hidden>
+      <div class="modal">
+        <header class="modal__header">
+          <h2>Importar fatura do cartão</h2>
+          <button class="modal__close" data-close>&times;</button>
+        </header>
+        <div class="modal__body">
+          <p>
+            Envie o PDF ou print da sua fatura que a IA vai ler e sugerir a
+            categorização dos gastos.
+          </p>
+          <div class="form-group">
+            <label for="arquivoFatura">Arquivo da fatura</label>
+            <input
+              type="file"
+              id="arquivoFatura"
+              accept="application/pdf,image/png,image/jpeg"
+            />
+          </div>
+        </div>
+        <footer class="modal__footer">
+          <button type="button" class="btn btn-secondary" data-close>
+            Cancelar
+          </button>
+          <button type="button" class="btn btn-primary" id="btnEnviarFatura">
+            Enviar para análise
+          </button>
+        </footer>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
