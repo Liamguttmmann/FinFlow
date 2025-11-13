@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinFlow - Gastos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-brand">FF</div>
+      <nav class="sidebar-nav">
+        <button class="sidebar-btn active" aria-label="Dashboard">
+          <span class="material-icon">home</span>
+        </button>
+        <button class="sidebar-btn" aria-label="Investimentos">
+          <span class="material-icon">bar_chart</span>
+        </button>
+        <button class="sidebar-btn" aria-label="Metas">
+          <span class="material-icon">flag</span>
+        </button>
+        <button class="sidebar-btn" aria-label="Configurações">
+          <span class="material-icon">settings</span>
+        </button>
+      </nav>
+    </aside>
+    <main class="main">
+      <header class="main-header">
+        <div class="main-header-text">
+          <span class="main-header-subtitle">Dashboard</span>
+          <h1 class="main-header-title">Resumo com base na triagem</h1>
+        </div>
+        <button class="secondary-btn">Editar triagem</button>
+      </header>
+      <section class="gastos-header">
+        <div class="gastos-header-text">
+          <span class="gastos-welcome">Olá, bom te ver de novo 👋</span>
+          <h2 class="gastos-title">Gastos</h2>
+        </div>
+        <button id="btnAddGasto" class="primary-btn">Adicionar gasto</button>
+      </section>
+      <div class="gastos-tabs" role="tablist">
+        <button class="gastos-tab active" data-filter="visao" role="tab">Visão Geral</button>
+        <button class="gastos-tab" data-filter="semanal" role="tab">Semanal</button>
+        <button class="gastos-tab" data-filter="mensal" role="tab">Mensal</button>
+      </div>
+      <section class="gastos-overview">
+        <div class="gastos-chart-card">
+          <div class="chart-wrapper">
+            <canvas id="gastosPieChart" width="320" height="320"></canvas>
+          </div>
+          <div class="gastos-legend">
+            <div class="legend-item">
+              <span class="legend-dot legend-fixo"></span>
+              <div class="legend-text">
+                <strong>Fixos</strong>
+                <span id="legend-fixo"></span>
+              </div>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot legend-variavel"></span>
+              <div class="legend-text">
+                <strong>Variáveis</strong>
+                <span id="legend-variavel"></span>
+              </div>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot legend-assinatura"></span>
+              <div class="legend-text">
+                <strong>Assinaturas</strong>
+                <span id="legend-assinatura"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="gastos-lista" id="gastos-lista-container"></section>
+    </main>
+  </div>
+  <div id="gasto-modal-overlay" class="modal-overlay hidden">
+    <div class="modal-card">
+      <header class="modal-header">
+        <h3>Registrar novo gasto</h3>
+        <button id="close-gasto-modal" class="modal-close" aria-label="Fechar">×</button>
+      </header>
+      <form id="gasto-form" class="modal-form">
+        <label class="modal-field">
+          <span>Tipo de gasto</span>
+          <select id="gasto-tipo" required>
+            <option value="">Selecione</option>
+            <option value="Fixo">Fixo</option>
+            <option value="Assinatura">Assinatura</option>
+            <option value="Variável">Variável</option>
+          </select>
+        </label>
+        <label class="modal-field">
+          <span>Categoria</span>
+          <select id="gasto-categoria" required>
+            <option value="">Selecione</option>
+            <option value="Moradia/Aluguel">Moradia/Aluguel</option>
+            <option value="Telefone/Internet">Telefone/Internet</option>
+            <option value="Transporte">Transporte</option>
+            <option value="Mercado">Mercado</option>
+            <option value="Lazer">Lazer</option>
+            <option value="Outros">Outros</option>
+          </select>
+        </label>
+        <label class="modal-field" id="subcategoria-wrapper">
+          <span>Subcategoria</span>
+          <select id="gasto-subcategoria">
+          </select>
+        </label>
+        <label class="modal-field">
+          <span>Descrição</span>
+          <input id="gasto-descricao" type="text" placeholder="Conta Vivo Fibra">
+        </label>
+        <label class="modal-field">
+          <span>Valor</span>
+          <input id="gasto-valor" type="number" step="0.01" min="0" required>
+        </label>
+        <label class="modal-field">
+          <span>Data</span>
+          <input id="gasto-data" type="date" required>
+        </label>
+        <div class="modal-actions">
+          <button type="button" id="cancelar-gasto" class="secondary-btn">Cancelar</button>
+          <button type="submit" class="primary-btn">Salvar gasto</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
