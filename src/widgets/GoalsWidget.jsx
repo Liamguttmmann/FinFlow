@@ -63,42 +63,51 @@ const sortCategories = (list) => {
   });
 };
 
-const GoalsWidget = ({ isExpanded }) => {
+const GoalsWidget = ({
+  isExpanded,
+  expensesData = expenses,
+  goalsData = spendingGoals,
+  onConfigureGoal = abrirConfiguracaoMeta
+}) => {
   const [periodMode, setPeriodMode] = useState('mensal');
-  const [baseDate, setBaseDate] = useState(() => dayjs());
+  const [baseDate, setBaseDate] = useState(() => dayjs().startOf('day'));
 
-  const { label, year, month, week } = useMemo(() => {
+  const periodInfo = useMemo(() => {
     if (periodMode === 'mensal') {
-      const formatted = capitalize(baseDate.format('MMMM YYYY'));
+      const start = baseDate.startOf('month');
+      const end = baseDate.endOf('month');
       return {
-        label: formatted,
-        year: baseDate.year(),
-        month: baseDate.month() + 1
+        label: capitalize(start.format('MMMM YYYY')),
+        year: start.year(),
+        month: start.month() + 1
       };
     }
+
     const start = baseDate.startOf('week');
     const end = baseDate.endOf('week');
+    const label = `Semana de ${capitalize(start.format('DD MMM'))} – ${capitalize(end.format('DD MMM YYYY'))}`;
     return {
-      label: `Semana de ${capitalize(start.format('DD MMM'))} – ${capitalize(end.format('DD MMM YYYY'))}`,
+      label,
       year: baseDate.isoWeekYear(),
       week: baseDate.isoWeek()
     };
   }, [baseDate, periodMode]);
 
   const data = useMemo(() => {
-    const filteredExpenses = expenses.filter((expense) => {
+    const filteredExpenses = (expensesData || []).filter((expense) => {
       const date = dayjs(expense.data);
+      if (!date.isValid()) return false;
       if (periodMode === 'mensal') {
-        return date.year() === year && date.month() + 1 === month;
+        return date.year() === periodInfo.year && date.month() + 1 === periodInfo.month;
       }
-      return date.isoWeekYear() === year && date.isoWeek() === week;
+      return date.isoWeekYear() === periodInfo.year && date.isoWeek() === periodInfo.week;
     });
 
-    const filteredGoals = spendingGoals.filter((goal) => {
+    const filteredGoals = (goalsData || []).filter((goal) => {
       if (periodMode === 'mensal') {
-        return goal.tipoPeriodo === 'mensal' && goal.ano === year && goal.mes === month;
+        return goal.tipoPeriodo === 'mensal' && goal.ano === periodInfo.year && goal.mes === periodInfo.month;
       }
-      return goal.tipoPeriodo === 'semanal' && goal.ano === year && goal.semanaISO === week;
+      return goal.tipoPeriodo === 'semanal' && goal.ano === periodInfo.year && goal.semanaISO === periodInfo.week;
     });
 
     const categories = sortCategories(buildCategorySet(filteredExpenses, filteredGoals));
@@ -126,7 +135,7 @@ const GoalsWidget = ({ isExpanded }) => {
       .sort((a, b) => b.gastoPeriodo - a.gastoPeriodo);
 
     const economiaPeriodo = Math.max(0, metaTotal - gastosTotais);
-    const economiaMensal = periodMode === 'mensal' ? economiaPeriodo : economiaPeriodo * 4.33;
+    const economiaMensal = economiaPeriodo;
     const economiaAnual = economiaMensal * 12;
 
     return {
@@ -137,7 +146,7 @@ const GoalsWidget = ({ isExpanded }) => {
       economiaAnual,
       temMetas: filteredGoals.length > 0
     };
-  }, [periodMode, year, month, week]);
+  }, [expensesData, goalsData, periodInfo, periodMode]);
 
   const categoriasVisiveis = useMemo(() => {
     if (isExpanded) return data.categories;
@@ -154,8 +163,38 @@ const GoalsWidget = ({ isExpanded }) => {
 
   const handleChangeMode = (mode) => {
     setPeriodMode(mode);
-    setBaseDate((current) => (mode === 'mensal' ? current.date(1) : current.startOf('week').add(3, 'day')));
+    setBaseDate((current) => (mode === 'mensal' ? current.startOf('month') : current.startOf('week')));
   };
+
+  const headerControls = (
+    <div className="widget-header-controls">
+      <div className="period-selector">
+        <button
+          type="button"
+          className={classNames({ active: periodMode === 'mensal' })}
+          onClick={() => handleChangeMode('mensal')}
+        >
+          Mensal
+        </button>
+        <button
+          type="button"
+          className={classNames({ active: periodMode === 'semanal' })}
+          onClick={() => handleChangeMode('semanal')}
+        >
+          Semanal
+        </button>
+      </div>
+      <div className="period-nav">
+        <button id="goalsPrevPeriod" type="button" onClick={handlePrev}>
+          ⟵
+        </button>
+        <span>{periodInfo.label}</span>
+        <button id="goalsNextPeriod" type="button" onClick={handleNext}>
+          ⟶
+        </button>
+      </div>
+    </div>
+  );
 
   const renderCategoryRow = (category) => {
     const color = CATEGORY_COLORS[category.categoria] || '#6366f1';
@@ -191,7 +230,7 @@ const GoalsWidget = ({ isExpanded }) => {
           {category.metaPeriodo === 0 && (
             <div className="category-row-info" style={{ justifyContent: 'space-between' }}>
               <span>Defina uma meta para esta categoria.</span>
-              <span className="category-row-actions" onClick={() => abrirConfiguracaoMeta(category.categoria)}>
+              <span className="category-row-actions" onClick={() => onConfigureGoal(category.categoria)}>
                 Criar meta
               </span>
             </div>
@@ -215,12 +254,13 @@ const GoalsWidget = ({ isExpanded }) => {
               <h3>Metas de gastos</h3>
               <p style={{ color: 'var(--text-muted)' }}>Acompanhe suas metas por categoria</p>
             </div>
+            {headerControls}
           </div>
         </header>
         <div className="empty-state">
           <span style={{ fontSize: 48 }}>🎯</span>
           <p>Você ainda não definiu metas de gastos para este período.</p>
-          <button type="button" onClick={() => abrirConfiguracaoMeta('todas')}>Configurar metas</button>
+          <button type="button" onClick={() => onConfigureGoal('todas')}>Configurar metas</button>
         </div>
       </div>
     );
@@ -234,33 +274,7 @@ const GoalsWidget = ({ isExpanded }) => {
             <h3>Metas de gastos</h3>
             <p style={{ color: 'var(--text-muted)' }}>Acompanhe suas metas por categoria</p>
           </div>
-          <div className="widget-header-controls">
-            <div className="period-selector">
-              <button
-                type="button"
-                className={classNames({ active: periodMode === 'mensal' })}
-                onClick={() => handleChangeMode('mensal')}
-              >
-                Mensal
-              </button>
-              <button
-                type="button"
-                className={classNames({ active: periodMode === 'semanal' })}
-                onClick={() => handleChangeMode('semanal')}
-              >
-                Semanal
-              </button>
-            </div>
-            <div className="period-nav">
-              <button id="goalsPrevPeriod" type="button" onClick={handlePrev}>
-                ⟵
-              </button>
-              <span>{label}</span>
-              <button id="goalsNextPeriod" type="button" onClick={handleNext}>
-                ⟶
-              </button>
-            </div>
-          </div>
+          {headerControls}
         </div>
       </header>
 
